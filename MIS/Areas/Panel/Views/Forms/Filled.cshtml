@@ -1,0 +1,71 @@
+﻿@model List<List<string>>
+@{
+    ViewData["Title"] = "Forms";
+}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+
+        <button type="button" id="sidebarCollapse" class="navbar-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <button class="btn btn-dark btn-sm d-inline-block d-lg-none" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-arrow-down d-flex justify-content-center"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="d-flex justify-content-center">
+                لیست  مقادیر فرم
+            </div>
+        </div>
+    </div>
+</nav>
+<div id="alldevices">
+    <div class="form-inline">
+    </div>
+    <br>
+    <!-- device's list -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">
+                    ID
+                </th>
+                @foreach (var item in ViewBag.fields)
+                {
+                    <th scope="col">
+                        @item
+                    </th>
+                }
+
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="tbod">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    @foreach (var item2 in item)
+                    {
+                        <td>
+                            @item2
+                        </td>
+                    }
+                    @if (ViewBag.subform != null)
+                    {
+                        @foreach (var item2 in ViewBag.subform)
+                        {
+                            <td>
+                                <a class="btn btn-outline-info" asp-action="SubFilled" asp-route-ID="@item[0]" asp-route-subf="@item2" asp-route-formid="@ViewBag.formid">@item2</a>
+                            </td>
+                        }
+                    }
+
+                </tr>
+
+            }
+
+        </tbody>
+    </table>
+</div>
+

@@ -1,0 +1,11 @@
+﻿@model IEnumerable<DomainValue>
+
+    @foreach (var item in Model)
+    {
+        <div class="form-group form-check col-md-2" id="val" style="border-left:2px solid black">
+            <label class="control-label col-md-12" style="font-weight: bold;text-align:center;">
+                @item.value
+            </label>
+            <input class="form-check-input" type="checkbox" name="subdomain" value="@item.id" />
+        </div>
+    }

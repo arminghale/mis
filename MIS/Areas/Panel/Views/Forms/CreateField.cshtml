@@ -1,0 +1,46 @@
+﻿<div class="form-row">
+    <div class="form-group col-md-4">
+        <input type="text" class="form-control" name="title" id="title" placeholder="عنوان">
+    </div>
+    <div class="form-group col-md-4">
+        <select class="form-control" name="type" id="type">
+            <option value="0">اختیاری</option>
+            <option value="1">اجباری</option>
+        </select>
+    </div>
+    <div class="form-group col-md-4">
+        <select class="form-control" name="field" id="field" onchange="fieldchange(event)">
+            <option value="0">ساده</option>
+            <option value="1">عدد</option>
+            <option value="2">تاریخ شمسی</option>
+            <option value="3">تاریخ میلادی</option>
+            <option value="4">متن طولانی</option>
+            <option value="5">تیتر</option>
+            <option value="6">تک انتخابی</option>
+            <option value="7">چند انتخابی</option>
+            <option value="8">دکمه</option>
+            <option value="9">تیک دار</option>
+            <option value="10">رمزعبور</option>
+        </select>
+    </div>
+    <div class="form-group col-md-4" hidden>
+        <select class="form-control" onchange="fieldchoose(event)">
+            <option value="-1">انتخاب</option>
+            <option value="0">دامنه</option>
+            <option value="1">دستی</option>
+        </select>
+    </div>
+    <div class="form-group col-md-4" hidden>
+        <input type="text" class="form-control" placeholder="عنوان">
+        <input  type="button" class="btn btn-sm btn-outline-success" onclick="dastivalue(event)"  value="تایید">
+    </div>
+    <div class="form-group col-md-4" hidden>
+        <select class="form-control" onchange="domainchange(event)" name="domain" id="domain" asp-items="@ViewBag.domains">
+            <option value="-1">روی دامنه</option>
+        </select>
+    </div>
+    <div class="form-group col-md-12" id="dvalue">
+
+    </div>
+
+</div>

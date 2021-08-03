@@ -1,0 +1,61 @@
+﻿@model IEnumerable<MIS.Form>
+
+@{
+    ViewData["Title"] = "Forms";
+}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+
+        <button type="button" id="sidebarCollapse" class="navbar-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <button class="btn btn-dark btn-sm d-inline-block d-lg-none" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-arrow-down d-flex justify-content-center"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="d-flex justify-content-center">
+                لیست فرم ها
+            </div>
+        </div>
+    </div>
+</nav>
+<div id="alldevices">
+    <div class="form-inline">
+        <div class="form-group mx-sm-3 mb-2">
+            <a class="btn btn-outline-success" asp-action="Create">ایجاد فرم</a>
+        </div>
+    </div>
+    <br>
+    <!-- device's list -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">
+                    عنوان
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="tbod">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @item.title
+                    </td>
+                    <td>
+                        <div>
+                            <a class="btn btn-danger" data-toggle="modal" data-target="#exampleModal" data-id="@item.id" data-method="Forms">حذف</a>
+                            <a class="btn btn-info" asp-action="Edit" asp-route-id="@item.id">ساختار فرم</a>
+                            <a class="btn btn-secondary" asp-action="Filled" asp-route-id="@item.id">مفادیر وارد شده در جداول</a>
+                        </div>
+                    </td>
+                </tr>
+
+            }
+
+        </tbody>
+    </table>
+</div>

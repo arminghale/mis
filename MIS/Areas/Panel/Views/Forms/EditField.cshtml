@@ -1,0 +1,200 @@
+﻿@model Field
+<div class="form-row">
+    <div class="form-group col-md-4">
+        <input type="text" class="form-control" name="title" id="title" placeholder="عنوان" value="@Model.title">
+    </div>
+    <div class="form-group col-md-4">
+        <select class="form-control" name="type" id="type">
+            @if (Model.isnull)
+            {
+                <option value="0" selected>اختیاری</option>
+                <option value="1">اجباری</option>
+            }
+            else
+            {
+                <option value="0">اختیاری</option>
+                <option value="1" selected>اجباری</option>
+            }
+
+        </select>
+    </div>
+    <div class="form-group col-md-4">
+        <select class="form-control" name="field" id="field" onchange="fieldchange(event)">
+            @if (Model.type == "input")
+            {
+                <option value="0" selected>ساده</option>
+            }
+            else
+            {
+                <option value="0">ساده</option>
+            }
+            @if (Model.type == "number")
+            {
+                <option value="1" selected>عدد</option>
+            }
+            else
+            {
+                <option value="1">عدد</option>
+            }
+            @if (Model.type == "dateshamsi")
+            {
+                <option value="2" selected>تاریخ شمسی</option>
+            }
+            else
+            {
+                <option value="2">تاریخ شمسی</option>
+            }
+            @if (Model.type == "datemiladi")
+            {
+                <option value="3" selected>تاریخ میلادی</option>
+            }
+            else
+            {
+                <option value="3">تاریخ میلادی</option>
+            }
+            @if (Model.type == "textarea")
+            {
+                <option value="4" selected>متن طولانی</option>
+            }
+            else
+            {
+                <option value="4">متن طولانی</option>
+            }
+            @if (Model.type == "label")
+            {
+                <option value="5" selected>تیتر</option>
+            }
+            else
+            {
+                <option value="5">تیتر</option>
+            }
+            @if (Model.type == "dropdown")
+            {
+                <option value="6" selected>تک انتخابی</option>
+            }
+            else
+            {
+                <option value="6">تک انتخابی</option>
+            }
+            @if (Model.type == "multidropdown")
+            {
+                <option value="7" selected>چند انتخابی</option>
+            }
+            else
+            {
+                <option value="7">چند انتخابی</option>
+            }
+            @if (Model.type == "button")
+            {
+                <option value="8" selected>دکمه</option>
+            }
+            else
+            {
+                <option value="8">دکمه</option>
+            }
+            @if (Model.type == "checkbox")
+            {
+                <option value="9" selected>تیک دار</option>
+            }
+            else
+            {
+                <option value="9">تیک دار</option>
+            }
+            @if (Model.type == "password")
+            {
+                <option value="10" selected>رمزعبور</option>
+            }
+            else
+            {
+                <option value="10">رمزعبور</option>
+            }
+
+        </select>
+    </div>
+    @if (ViewBag.isdomain == 0)
+    {
+        <div class="form-group col-md-4" hidden>
+            <select class="form-control" onchange="fieldchoose(event)">
+                <option value="-1">انتخاب</option>
+                <option value="0">دامنه</option>
+                <option value="1">دستی</option>
+            </select>
+        </div>
+    }
+    else if (ViewBag.isdomain == 1)
+    {
+        <div class="form-group col-md-4">
+            <select class="form-control" onchange="fieldchoose(event)">
+                <option value="-1">انتخاب</option>
+                <option value="0">دامنه</option>
+                <option value="1" selected>دستی</option>
+            </select>
+        </div>
+    }
+    else
+    {
+        <div class="form-group col-md-4">
+            <select class="form-control" onchange="fieldchoose(event)">
+                <option value="-1">انتخاب</option>
+                <option value="0" selected>دامنه</option>
+                <option value="1">دستی</option>
+            </select>
+        </div>
+    }
+
+    @if (ViewBag.isdomain == 1)
+    {
+        <div class="form-group col-md-4">
+            <input type="text" class="form-control" placeholder="عنوان">
+            <input type="button" class="btn btn-sm btn-outline-success" onclick="dastivalue(event)" value="تایید">
+        </div>
+    }
+    else
+    {
+        <div class="form-group col-md-4" hidden>
+            <input type="text" class="form-control" placeholder="عنوان">
+            <input type="button" class="btn btn-sm btn-outline-success" onclick="dastivalue(event)" value="تایید">
+        </div>
+    }
+    @if (ViewBag.isdomain == 2)
+    {
+        <div class="form-group col-md-4" >
+            <select class="form-control" onchange="domainchange(event)" name="domain" id="domain" asp-items="@ViewBag.domains">
+                <option value="-1">روی دامنه</option>
+            </select>
+        </div>
+    }
+    else
+    {
+        <div class="form-group col-md-4" hidden>
+            <select class="form-control" onchange="domainchange(event)" name="domain" id="domain" asp-items="@ViewBag.domains">
+                <option value="-1">روی دامنه</option>
+            </select>
+        </div>
+    }
+
+    <div class="form-group col-md-12" id="dvalue">
+        @if (ViewBag.isdomain == 2)
+        {
+            foreach (var item in ViewBag.khodedomain)
+            {
+                if (Model.SubFields.Any(w => w.value == item.value))
+                {
+                    <label style="border-left:2px solid black;margin-left:2px;"><input type="checkbox" checked name="domainvalues" value="@item.value" />@item.value</label>
+                }
+                else
+                {
+                    <label style="border-left:2px solid black;margin-left:2px;"><input type="checkbox" name="domainvalues" value="@item.value" />@item.value</label>
+                }
+            }
+        }
+        else if (ViewBag.isdomain == 1)
+        {
+            foreach (var item in Model.SubFields)
+            {
+                <label style="border-left:2px solid black;margin-left:2px;"><input type="checkbox" checked name="domainvalues" value="@item.value" />@item.value</label>
+            }
+        }
+    </div>
+
+</div>

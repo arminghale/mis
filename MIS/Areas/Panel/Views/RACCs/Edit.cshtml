@@ -1,0 +1,121 @@
+﻿@model MIS.Role
+
+@{
+    ViewData["Title"] = "RACC";
+}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+
+        <button type="button" id="sidebarCollapse" class="navbar-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <button class="btn btn-dark btn-sm d-inline-block d-lg-none" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-arrow-down d-flex justify-content-center"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="d-flex justify-content-center">
+                تغییر دسترسی @Model.id
+            </div>
+        </div>
+    </div>
+</nav>
+<form asp-action="Edit">
+    <div class="form-row" id="createform">
+        <input asp-for="id" hidden />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group col-md-12" style="text-align:center">
+            <label class="control-label col-md-12" style="font-weight: bold;text-align:center;font-size:32px">@Model.title</label>
+        </div>
+        <div class="form-group col-md-3">
+            <select id="samane2" class="form-control" asp-items="ViewBag.samaneid">
+                <option value="-1">انتخاب سامانه</option>
+            </select>
+        </div>
+        <div class="form-group col-md-9">
+        </div>
+        @foreach (var item in ViewBag.actiongroup)
+        {
+            <div class="form-group col-md-12" id="s-@item.samaneid" hidden>
+                <label class="control-label col-md-12" style="font-weight: bold;text-align:center;font-size:30px">@item.title</label>
+            </div>
+            <div class="form-group col-md-4" style="border-bottom:2px solid black;" id="s-@item.samaneid" hidden>
+                <label class="control-label col-md-12" style="font-weight: bold;text-align:center;color:gray">عملیات</label>
+            </div>
+            <div class="form-group col-md-4" style="border-bottom:2px solid black;" id="s-@item.samaneid" hidden>
+                <label class="control-label col-md-12" style="font-weight: bold;text-align:center;color:gray">دسترسی دارد</label>
+            </div>
+            <div class="form-group col-md-4" style="border-bottom:2px solid black;" id="s-@item.samaneid" hidden>
+                <label class="control-label col-md-12" style="font-weight: bold;text-align:center;color:gray">دسترسی ندارد</label>
+            </div>
+            foreach (var item2 in item.Actions)
+            {
+                <div class="form-group col-md-4" id="s-@item.samaneid" hidden>
+                    <label class="control-label col-md-12" style="font-weight: bold;text-align:center;">@item2.title</label>
+                </div>
+                int flag = 0;
+                foreach (var item3 in ViewBag.actions)
+                {
+                    if (item2.id == item3.actionid && item3.type == false)
+                    {
+                        flag = 1;
+                    }
+                    if (item2.id == item3.actionid && item3.type == true)
+                    {
+                        flag = 2;
+                    }
+                }
+                if (flag == 1)
+                {
+                    <div class="form-group form-check col-md-4" style="text-align:center" id="s-@item.samaneid" hidden>
+                        <input class="form-check-input" type="checkbox" name="access" value="@item2.id-true" />
+                    </div>
+                    <div class="form-group form-check col-md-4" style="text-align:center" id="s-@item.samaneid" hidden>
+                        <input class="form-check-input" type="checkbox" checked name="access" value="@item2.id-false" />
+                    </div>
+                }
+                else if (flag == 2)
+                {
+                    <div class="form-group form-check col-md-4" style="text-align:center" id="s-@item.samaneid" hidden>
+                        <input class="form-check-input" type="checkbox" name="access" checked value="@item2.id-true" />
+                    </div>
+                    <div class="form-group form-check col-md-4" style="text-align:center" id="s-@item.samaneid" hidden>
+                        <input class="form-check-input" type="checkbox" name="access" value="@item2.id-false" />
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group form-check col-md-4" style="text-align:center" id="s-@item.samaneid" hidden>
+                        <input class="form-check-input" type="checkbox" name="access" value="@item2.id-true" />
+                    </div>
+                    <div class="form-group form-check col-md-4" style="text-align:center" id="s-@item.samaneid" hidden>
+                        <input class="form-check-input" type="checkbox" name="access" value="@item2.id-false" />
+                    </div>
+                }
+
+            }
+        }
+    </div>
+    <input type="submit" value="ثبت دسترسی" class="btn btn-success btn-lg" />
+</form>
+
+@section Scripts{
+    <script>
+        $("#samane2").change(function () {
+            var sid = $('#samane2 :selected').val();
+            var all=[]
+            $('#samane2 option').each(function () {
+                var temp = $(this).val();
+                all.push(temp);
+            });
+            for (var i = 0; i < all.length; i++) {
+                var contentToRemove = document.querySelectorAll(("#s-" + all[i]));
+                $(contentToRemove).attr('hidden', true);
+            }
+            var contentToRemove = document.querySelectorAll(("#s-" + sid));
+            $(contentToRemove).removeAttr('hidden');
+        });
+    </script>
+}

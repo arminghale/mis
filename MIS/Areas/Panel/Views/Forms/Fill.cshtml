@@ -1,0 +1,486 @@
+﻿@model Form
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+
+        <button type="button" id="sidebarCollapse" class="navbar-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <button class="btn btn-dark btn-sm d-inline-block d-lg-none" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-arrow-down d-flex justify-content-center"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="d-flex justify-content-center">
+                پر کردن فرم @Model.title
+            </div>
+        </div>
+    </div>
+</nav>
+<div id="alldevices">
+    <div class="form-inline">
+    </div>
+    <br>
+</div>
+<input hidden id="formid" value="@Model.id" />
+<form id="mainform">
+    <div id="formcontent" style="margin-bottom:30px;">
+        @for (int i = 0; i < ViewBag.radif; i++)
+        {
+            if (Model.Fields.Any(w => w.radif == i))
+            {
+                var temp = Model.Fields.FirstOrDefault(w => w.radif == i);
+
+                <div class="form-inline" id="field-@temp.id">
+                    <input hidden value="@temp.id" />
+                    <button style="visibility:hidden" type='button' class="btn btn-danger mb-2" onclick="deletefield(event,@temp.id)">حذف</button>
+                    <a class="btn btn-warning mb-2" style="visibility: hidden;margin:0 5px 0 5px" data-toggle="modal" data-target="#formfield" data-method="confirmedit(@temp.id)" data-id="@temp.id">تغییر</a>
+                    <div><span style="border-left:2px solid black;padding-left: 40px;"></span></div>
+                    @if (temp.type == "button")
+                    {
+                        <div class='form-group mx-sm-3 mb-2'>
+                            <input type='submit' onclick='submitform(event)' class='form-control btn btn-outline-info' value='@temp.title'>
+                        </div>
+                    }
+                    else
+                    {
+                        @if (temp.type == "label")
+                        {
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <label style='font-weight:bold;'>@temp.title</label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <label>@temp.title</label>
+                            </div>
+                        }
+                    }
+
+                    @switch (temp.type)
+                    {
+                        case "input":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <input type='text' class='form-control'>
+                            </div>
+                            break;
+                        case "number":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <input type='number' class='form-control'>
+                            </div>
+                            break;
+                        case "textarea":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <textarea class='form-control'></textarea>
+                            </div>
+                            break;
+                        case "datemiladi":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <input type='date' class='form-control'>
+                            </div>
+                            break;
+                        case "dateshamsi":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <input type='text' class='form-control' id='persiandate'>
+                            </div>
+                            break;
+                        case "dropdown":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <select class='form-control'>
+                                    <option></option>
+                                    @foreach (var item in temp.SubFields)
+                                    {
+                                        <option>@item.value</option>
+                                    }
+                                </select>
+                            </div>
+                            break;
+                        case "multidropdown":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <select multiple class='form-control'>
+                                    <option></option>
+                                    @foreach (var item in temp.SubFields)
+                                    {
+                                        <option>@item.value</option>
+                                    }
+                                </select>
+                            </div>
+                            break;
+                        case "checkbox":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <input type='checkbox' class='form-control' value="true">
+                            </div>
+                            break;
+                        case "password":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <input type='password' class='form-control'>
+                            </div>
+                            break;
+                    }
+                    @if (!temp.isnull)
+                    {
+                        <div class='form-group mx-sm-3 mb-2'><span style='color:red;'>*</span></div>
+                    }
+                </div>
+            }
+            else
+            {
+                var temp = Model.SubForms1.FirstOrDefault(w => w.radif == i);
+                if (temp.type == 0)
+                {
+                    for (int j = 0; j < temp.Form2.Fields.Count(); j++)
+                    {
+                        <div class="form-inline" id="subform-@temp.id">
+                            @if (j == 0)
+                            {
+                                <button style="visibility:hidden" type='button' class='btn btn-danger mb-2' onclick='deletesubform(event,@temp.id)'>حذف</button>
+                                <div class='mb-2' style='padding:.375rem 1.7rem;'>&nbsp</div>
+                            }
+                            else
+                            {
+                                <div class='mb-2' style='padding:.375rem 3.3rem;'>&nbsp</div>
+                            }
+                            <div><span style='border-left:2px solid black;padding-left: 40px;'></span></div>
+                            @if (temp.Form2.Fields[j].type == "button")
+                            {
+                                <div class='form-group mx-sm-3 mb-2'>
+                                    <input type='submit' onclick='submitform(event)' class='form-control btn btn-outline-info' value='@temp.Form2.Fields[j].title'>
+                                </div>
+                            }
+                            else
+                            {
+                                @if (temp.Form2.Fields[j].type == "label")
+                                {
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <label style='font-weight:bold;'>@temp.Form2.Fields[j].title</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <label>@temp.Form2.Fields[j].title</label>
+                                    </div>
+                                }
+                            }
+
+                            @switch (temp.Form2.Fields[j].type)
+                            {
+                                case "input":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='text' class='form-control'>
+                                    </div>
+                                    break;
+                                case "number":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='number' class='form-control'>
+                                    </div>
+                                    break;
+                                case "textarea":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <textarea class='form-control'></textarea>
+                                    </div>
+                                    break;
+                                case "datemiladi":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='date' class='form-control'>
+                                    </div>
+                                    break;
+                                case "dateshamsi":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='text' class='form-control' id='persiandate'>
+                                    </div>
+                                    break;
+                                case "dropdown":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <select class='form-control'>
+                                            <option></option>
+                                            @foreach (var item in temp.Form2.Fields[j].SubFields)
+                                            {
+                                                <option>@item.value</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    break;
+                                case "multidropdown":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <select multiple class='form-control'>
+                                            <option></option>
+                                            @foreach (var item in temp.Form2.Fields[j].SubFields)
+                                            {
+                                                <option>@item.value</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    break;
+                                case "checkbox":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='checkbox' class='form-control' value="true">
+                                    </div>
+                                    break;
+                                case "password":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='password' class='form-control'>
+                                    </div>
+                                    break;
+                            }
+                            @if (!temp.Form2.Fields[j].isnull)
+                            {
+                                <div class='form-group mx-sm-3 mb-2'><span style='color:red;'>*</span></div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < temp.Form2.Fields.Count(); j++)
+                    {
+                        <div class="form-inline" id="subform-@temp.id">
+                            @if (j == 0)
+                            {
+                                <button style="visibility:hidden" type='button' class='btn btn-danger mb-2' onclick='deletesubform(event,@temp.id)'>حذف</button>
+                                <button class='btn btn-success mb-2' type='button' onclick='addsubformtypeone(event,@temp.Form2.Fields.Count())'>افزودن</button>
+                            }
+                            else
+                            {
+                                <div class='mb-2' style='padding:.375rem 3.3rem;'>&nbsp</div>
+                            }
+                            <div><span style='border-left:2px solid black;padding-left: 40px;'></span></div>
+                            @if (temp.Form2.Fields[j].type == "button")
+                            {
+                                <div class='form-group mx-sm-3 mb-2'>
+                                    <input type='submit' onclick='submitform(event)' class='form-control btn btn-outline-info' value='@temp.Form2.Fields[j].title'>
+                                </div>
+                            }
+                            else
+                            {
+                                @if (temp.Form2.Fields[j].type == "label")
+                                {
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <label style='font-weight:bold;'>@temp.Form2.Fields[j].title</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <label>@temp.Form2.Fields[j].title</label>
+                                    </div>
+                                }
+                            }
+
+                            @switch (temp.Form2.Fields[j].type)
+                            {
+                                case "input":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='text' class='form-control'>
+                                    </div>
+                                    break;
+                                case "number":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='number' class='form-control'>
+                                    </div>
+                                    break;
+                                case "textarea":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <textarea class='form-control'></textarea>
+                                    </div>
+                                    break;
+                                case "datemiladi":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='date' class='form-control'>
+                                    </div>
+                                    break;
+                                case "dateshamsi":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='text' class='form-control' id='persiandate'>
+                                    </div>
+                                    break;
+                                case "dropdown":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <select class='form-control'>
+                                            <option></option>
+                                            @foreach (var item in temp.Form2.Fields[j].SubFields)
+                                            {
+                                                <option>@item.value</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    break;
+                                case "multidropdown":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <select multiple class='form-control'>
+                                            <option></option>
+                                            @foreach (var item in temp.Form2.Fields[j].SubFields)
+                                            {
+                                                <option>@item.value</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    break;
+                                case "checkbox":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='checkbox' class='form-control' value="true">
+                                    </div>
+                                    break;
+                                case "password":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='password' class='form-control'>
+                                    </div>
+                                    break;
+                            }
+                            @if (!temp.Form2.Fields[j].isnull)
+                            {
+                                <div class='form-group mx-sm-3 mb-2'><span style='color:red;'>*</span></div>
+                            }
+                        </div>
+
+                    }
+                    <hr id='subform-@temp.id' />
+                }
+            }
+        }
+    </div>
+</form>
+
+
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            shamsi();
+        });
+        function shamsi() {
+            $('#persiandate').MdPersianDateTimePicker({
+                targetTextSelector: '#persiandate',
+                fromDate: true,
+                enableTimePicker: true,
+                groupId: 'rangeSelector1',
+                dateFormat: 'yyyy-MM-dd HH:mm:ss',
+                textFormat: 'yyyy-MM-dd HH:mm:ss',
+            });
+        }
+      
+        function addsubformtypeone(e, count) {
+            var div = $(e.target).parent().clone();
+            var t = $(e.target).parent();
+            $(div).children().eq(0).remove();
+            $(div).children().eq(0).remove();
+            $(div).prepend("<div class='mb-2' style='padding:.375rem 3.3rem;'>&nbsp</div>");
+            //$('#formcontent').append(div);
+            var c = count - 1;
+            $(t).nextAll().eq('' + c).after(div);
+            c++;
+            for (var i = 0; i < count; i++) {
+
+                var temp = $(t).nextAll().eq('' + i).clone();
+                $(t).nextAll().eq('' + c).after(temp);
+                c++;
+            }
+        }
+
+        function submitform(e) {
+            e.preventDefault();
+            var isnull = false;
+            $('#formcontent').find('span').each(function () {
+                if ($(this).html() == "*") {
+                    var g = $(this).parent().parent();
+                   var  t = $(g).before();
+                    if ($(t).find('input').length > 0) {
+                        if ($(t).find('input').val() == "" || $(t).find('input').val() == null) {
+                            isnull = true;
+                        }
+                    }
+                    if ($(t).find('select').length > 0) {
+                        if ($(t).find('select').find(':selected').text() == "" || $(t).find('select').find(':selected').text() == null) {
+                            isnull = true;
+                        }
+                    }
+                }
+
+            });
+            if (isnull) {
+                alert("لطفا تمام فیلد های اجباری را کامل کنید.")
+            }
+            else {
+                var formid = $('#formid').val();
+                var subforms = []
+                var fk = [];
+                $("div[id^=subform-]").each(function () {
+                    var temp = $(this).attr('id');
+                    if ($.inArray(temp, subforms) == '-1') {
+                        subforms.push(temp);
+                    }
+                })
+                $.each(subforms, function (i, item) {
+                    var par = [];
+                    var content = document.querySelectorAll(("#" + item));
+                    $.each(content, function () {
+                        var div = $(this).last();
+                        if ($(div).find('span').length > 0) {
+                            div = $(div).before();
+                        }
+                        if ($(div).find('input').length > 0) {
+                            par.push($(div).find('input').val());
+                            $(div).find('input').val("");
+                        } else if ($(div).find('select').length > 0) {
+                            par.push($(div).find('select').find(":selected").text());
+                            $(div).find('select').find(":selected").removeAttr('selected');
+                            $(div).find('select:nth-child(0)').attr('selected', 'selected');
+                        }
+                    });
+                    $.ajax({
+                        url: "/panel/Forms/SqlCommandInsertFK/",
+                        type: "POST",
+                        data: { formid: formid, id: item, parameters: par }
+                    }).done(function (result) {
+                        for (var i = 0; i < result.message.length; i++) {
+                            fk.push(item + "-" + result.message[i]);
+                        }
+                    });
+                });
+                setTimeout(function () {
+                    mainform(fk);
+                }, 2000);
+            }
+        }
+        function mainform(fk) {
+            var formid = $('#formid').val();
+            var field = [];
+            var content2 = [];
+            $("#formcontent div[id^=field-]").each(function () {
+                var temp = $(this).attr('id');
+                if ($.inArray(temp, content2) == '-1') {
+                    content2.push(temp);
+                }
+            })
+            $.each(content2, function (i, item) {
+                var content3 = document.querySelectorAll(("#" + item));
+                $.each(content3, function () {
+                    var div2 = $(this).children().last();
+                    if ($(div2).find('span').length > 0) {
+                        div2 = $(div2).parent().children().eq($(this).children().length - 2);
+                    }
+                    if ($(div2).find('input[type="submit"]').length == 0) {
+                        if ($(div2).find('input').length > 0) {
+                            field.push($(div2).find('input').val());
+                            $(div2).find('input').val("");
+                        } else if ($(div2).find('select').length > 0) {
+                            field.push($(div2).find('select').find(":selected").text());
+                            $(div2).find('select').find(":selected").removeAttr('selected');
+                            $(div2).find('select:nth-child(0)').attr('selected', 'selected');
+                        }
+                    }
+                });
+
+
+            })
+            $.ajax({
+                url: "/panel/Forms/SqlCommandInsert/",
+                type: "POST",
+                data: { formid: formid, parameters: field, fk: fk }
+            }).done(function (result) {
+               alert(result.message);
+            });
+        }
+    </script>
+}

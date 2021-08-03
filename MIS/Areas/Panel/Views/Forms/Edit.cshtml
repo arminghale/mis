@@ -1,0 +1,1055 @@
+﻿@model Form
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+
+        <button type="button" id="sidebarCollapse" class="navbar-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <button class="btn btn-dark btn-sm d-inline-block d-lg-none" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-arrow-down d-flex justify-content-center"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="d-flex justify-content-center">
+                ساختار فرم @Model.title
+            </div>
+        </div>
+    </div>
+</nav>
+<div id="alldevices">
+    <div class="form-inline">
+        <div class="form-group mx-sm-3 mb-2">
+            <a class="btn btn-outline-primary" data-toggle="modal" data-target="#formfield" data-method="confirmfield()">افزودن فیلد</a>
+        </div>
+        <div class="form-group mx-sm-3 mb-2">
+            <a class="btn btn-outline-primary" data-toggle="modal" data-target="#formfield" data-method="confirmsubform()" data-id="-1">افزودن فرم</a>
+        </div>
+    </div>
+    <br>
+</div>
+<input hidden id="formid" value="@Model.id" />
+<form id="mainform">
+    <div id="formcontent" style="margin-bottom:30px;">
+        @for (int i = 0; i < ViewBag.radif; i++)
+        {
+            if (Model.Fields.Any(w => w.radif == i))
+            {
+                var temp = Model.Fields.FirstOrDefault(w => w.radif == i);
+
+                <div class="form-inline" id="field-@temp.id">
+                    <input hidden value="@temp.id" />
+                    <button type='button' class="btn btn-danger mb-2" onclick="deletefield(event,@temp.id)">حذف</button>
+                    <a class="btn btn-warning mb-2" style="margin:0 5px 0 5px" data-toggle="modal" data-target="#formfield" data-method="confirmedit(@temp.id)" data-id="@temp.id">تغییر</a>
+                    <div><span style="border-left:2px solid black;padding-left: 40px;"></span></div>
+                    @if (temp.type == "button")
+                    {
+                        <div class='form-group mx-sm-3 mb-2'>
+                            <input type='submit' onclick='submitform(event)' class='form-control btn btn-outline-info' value='@temp.title'>
+                        </div>
+                    }
+                    else
+                    {
+                        @if (temp.type == "label")
+                        {
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <label style='font-weight:bold;'>@temp.title</label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <label>@temp.title</label>
+                            </div>
+                        }
+                    }
+
+                    @switch (temp.type)
+                    {
+                        case "input":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <input type='text' class='form-control'>
+                            </div>
+                            break;
+                        case "number":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <input type='number' class='form-control'>
+                            </div>
+                            break;
+                        case "textarea":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <textarea class='form-control'></textarea>
+                            </div>
+                            break;
+                        case "datemiladi":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <input type='date' class='form-control'>
+                            </div>
+                            break;
+                        case "dateshamsi":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <input type='text' class='form-control' id='persiandate'>
+                            </div>
+                            break;
+                        case "dropdown":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <select class='form-control'>
+                                    <option></option>
+                                    @foreach (var item in temp.SubFields)
+                                    {
+                                        <option>@item.value</option>
+                                    }
+                                </select>
+                            </div>
+                            break;
+                        case "multidropdown":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <select multiple class='form-control'>
+                                    <option></option>
+                                    @foreach (var item in temp.SubFields)
+                                    {
+                                        <option>@item.value</option>
+                                    }
+                                </select>
+                            </div>
+                            break;
+                        case "checkbox":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <input type='checkbox' class='form-control' value="true">
+                            </div>
+                            break;
+                        case "password":
+                            <div class='form-group mx-sm-3 mb-2'>
+                                <input type='password' class='form-control'>
+                            </div>
+                            break;
+                    }
+                    @if (!temp.isnull)
+                    {
+                        <div class='form-group mx-sm-3 mb-2'><span style='color:red;'>*</span></div>
+                    }
+                </div>
+            }
+            else
+            {
+                var temp = Model.SubForms1.FirstOrDefault(w => w.radif == i);
+                if (temp.type == 0)
+                {
+                    for (int j = 0; j < temp.Form2.Fields.Count(); j++)
+                    {
+                        <div class="form-inline" id="subform-@temp.id">
+                            @if (j == 0)
+                            {
+                                <button type='button' class='btn btn-danger mb-2' onclick='deletesubform(event,@temp.id)'>حذف</button>
+                                <div class='mb-2' style='padding:.375rem 1.7rem;'>&nbsp</div>
+                            }
+                            else
+                            {
+                                <div class='mb-2' style='padding:.375rem 3.3rem;'>&nbsp</div>
+                            }
+                            <div><span style='border-left:2px solid black;padding-left: 40px;'></span></div>
+                            @if (temp.Form2.Fields[j].type == "button")
+                            {
+                                <div class='form-group mx-sm-3 mb-2'>
+                                    <input type='submit' onclick='submitform(event)' class='form-control btn btn-outline-info' value='@temp.Form2.Fields[j].title'>
+                                </div>
+                            }
+                            else
+                            {
+                                @if (temp.Form2.Fields[j].type == "label")
+                                {
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <label style='font-weight:bold;'>@temp.Form2.Fields[j].title</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <label>@temp.Form2.Fields[j].title</label>
+                                    </div>
+                                }
+                            }
+
+                            @switch (temp.Form2.Fields[j].type)
+                            {
+                                case "input":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='text' class='form-control'>
+                                    </div>
+                                    break;
+                                case "number":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='number' class='form-control'>
+                                    </div>
+                                    break;
+                                case "textarea":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <textarea class='form-control'></textarea>
+                                    </div>
+                                    break;
+                                case "datemiladi":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='date' class='form-control'>
+                                    </div>
+                                    break;
+                                case "dateshamsi":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='text' class='form-control' id='persiandate'>
+                                    </div>
+                                    break;
+                                case "dropdown":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <select class='form-control'>
+                                            <option></option>
+                                            @foreach (var item in temp.Form2.Fields[j].SubFields)
+                                            {
+                                                <option>@item.value</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    break;
+                                case "multidropdown":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <select multiple class='form-control'>
+                                            <option></option>
+                                            @foreach (var item in temp.Form2.Fields[j].SubFields)
+                                            {
+                                                <option>@item.value</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    break;
+                                case "checkbox":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='checkbox' class='form-control' value="true">
+                                    </div>
+                                    break;
+                                case "password":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='password' class='form-control'>
+                                    </div>
+                                    break;
+                            }
+                            @if (!temp.Form2.Fields[j].isnull)
+                            {
+                                <div class='form-group mx-sm-3 mb-2'><span style='color:red;'>*</span></div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < temp.Form2.Fields.Count(); j++)
+                    {
+                        <div class="form-inline" id="subform-@temp.id">
+                            @if (j == 0)
+                            {
+                                <button type='button' class='btn btn-danger mb-2' onclick='deletesubform(event,@temp.id)'>حذف</button>
+                                <button class='btn btn-success mb-2' type='button' onclick='addsubformtypeone(event,@temp.Form2.Fields.Count())'>افزودن</button>
+                            }
+                            else
+                            {
+                                <div class='mb-2' style='padding:.375rem 3.3rem;'>&nbsp</div>
+                            }
+                            <div><span style='border-left:2px solid black;padding-left: 40px;'></span></div>
+                            @if (temp.Form2.Fields[j].type == "button")
+                            {
+                                <div class='form-group mx-sm-3 mb-2'>
+                                    <input type='submit' onclick='submitform(event)' class='form-control btn btn-outline-info' value='@temp.Form2.Fields[j].title'>
+                                </div>
+                            }
+                            else
+                            {
+                                @if (temp.Form2.Fields[j].type == "label")
+                                {
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <label style='font-weight:bold;'>@temp.Form2.Fields[j].title</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <label>@temp.Form2.Fields[j].title</label>
+                                    </div>
+                                }
+                            }
+
+                            @switch (temp.Form2.Fields[j].type)
+                            {
+                                case "input":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='text' class='form-control'>
+                                    </div>
+                                    break;
+                                case "number":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='number' class='form-control'>
+                                    </div>
+                                    break;
+                                case "textarea":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <textarea class='form-control'></textarea>
+                                    </div>
+                                    break;
+                                case "datemiladi":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='date' class='form-control'>
+                                    </div>
+                                    break;
+                                case "dateshamsi":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='text' class='form-control' id='persiandate'>
+                                    </div>
+                                    break;
+                                case "dropdown":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <select class='form-control'>
+                                            <option></option>
+                                            @foreach (var item in temp.Form2.Fields[j].SubFields)
+                                            {
+                                                <option>@item.value</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    break;
+                                case "multidropdown":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <select multiple class='form-control'>
+                                            <option></option>
+                                            @foreach (var item in temp.Form2.Fields[j].SubFields)
+                                            {
+                                                <option>@item.value</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    break;
+                                case "checkbox":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='checkbox' class='form-control' value="true">
+                                    </div>
+                                    break;
+                                case "password":
+                                    <div class='form-group mx-sm-3 mb-2'>
+                                        <input type='password' class='form-control'>
+                                    </div>
+                                    break;
+                            }
+                            @if (!temp.Form2.Fields[j].isnull)
+                            {
+                                <div class='form-group mx-sm-3 mb-2'><span style='color:red;'>*</span></div>
+                            }
+                        </div>
+
+                    }
+                    <hr id='subform-@temp.id' />
+                }
+            }
+        }
+    </div>
+    <button type="button" onclick="createtable()" class="btn btn-success">ثبت</button>
+    <button type="button" onclick="droptable()" class="btn btn-outline-danger">حذف</button>
+    <label style="color:darkgreen;" id="message" hidden></label>
+</form>
+
+
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            shamsi();
+        });
+
+        $('#formfield').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var modal = $(this);
+            var method = button.data('method');
+            var id = button.data('id');
+            modal.find('#but').attr('onclick', method);
+
+            if ($("#formfieldbody").find(".form-row").length > 0) {
+                $("#formfieldbody").find(".form-row").remove();
+            }
+            if (id > 0) {
+                $.ajax({
+                    url: "/panel/Forms/EditField/",
+                    type: "GET",
+                    data: { id: id }
+                }).done(function (result) {
+                    $("#formfieldbody").append(result);
+                });
+            } else if (id == -1) {
+                var formid = $('#formid').val();
+                $.ajax({
+                    url: "/panel/Forms/AddSubForm/",
+                    type: "GET",
+                    data: { formid: formid }
+                }).done(function (result) {
+                    $("#formfieldbody").append(result);
+                });
+            } else {
+                $.ajax({
+                    url: "/panel/Forms/CreateField/",
+                    type: "GET",
+                    data: {}
+                }).done(function (result) {
+                    $("#formfieldbody").append(result);
+                });
+            }
+        });
+
+
+
+        function confirmfield() {
+            var field = $('#field :selected').val();
+            var type = $('#type :selected').val();
+            var formid = $('#formid').val();
+            var onvan = $('#title').val();
+            var isnull = true;
+            if (type == 1) {
+                isnull = false;
+            }
+            var subfields = [];
+            $('#dvalue input[name=domainvalues]').each(function () {
+                if ($(this).is(':checked')) {
+                    subfields.push($(this).val());
+                }
+            });
+            var a = [];
+            $('#formcontent').children('div').each(function () {
+                var tempid = $(this).attr('id');
+                if ($.inArray(tempid, a) == '-1') {
+                    a.push(tempid);
+                }
+            });
+            $.ajax({
+                url: "/panel/Forms/CreateField/",
+                type: "POST",
+                data: { formid: formid, isnull: isnull, title: onvan, type: field, subfields: subfields, radif: a.length }
+            }).done(function (result) {
+                var div = "<div class='form-inline' id='field-" + result + "' >";
+                div += "<input hidden value='" + result + "' >";
+                div += "<button type='button' class='btn btn-danger mb-2' onclick='deletefield(event," + result + ")'>حذف</button>";
+                div += "<a class='btn btn-warning mb-2' style='margin:0 5px 0 5px' data-toggle='modal' data-target='#formfield' data-method='confirmedit(" + result + ")' data-id='" + result + "'>تغییر</a>";
+                div += "<div ><span style='border-left:2px solid black;padding-left: 40px;'></span></div>"
+                if (field == '8') {
+                    var fi = "<input type='submit' onclick='submitform(event)' class='form-control btn btn-outline-info' value='" + $('#title').val() + "'>";
+                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                } else {
+                    if (field == '5') {
+                        var title = "<label style='font-weight:bold;' >" + $('#title').val() + "</label>";
+                    }
+                    else {
+                        var title = "<label>" + $('#title').val() + "</label>";
+                    }
+                    div += "<div class='form-group mx-sm-3 mb-2'>" + title + "</div>";
+                }
+
+                switch (field) {
+                    case '0':
+                        var fi = "<input type='text' class='form-control'>";
+                        div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                        break;
+                    case '1':
+                        var fi = "<input type='number' class='form-control'>";
+                        div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                        break;
+                    case '4':
+                        var fi = "<textarea class='form-control'></textarea>";
+                        div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                        break;
+                    case '3':
+                        var fi = "<input type='date' class='form-control'>";
+                        div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                        break;
+                    case '2':
+                        var fi = "<input type='text' class='form-control' id='persiandate'>";
+                        div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                        break;
+                    case '6':
+                        var fi = "<select class='form-control'><option></option>";
+                        $('#dvalue input[name=domainvalues]').each(function () {
+                            if ($(this).is(':checked')) {
+                                var op = "<option>" + $(this).val() + "</option>";
+                                fi += op;
+                            }
+                        });
+                        fi += "</select>";
+                        div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                        break;
+                    case '7':
+                        var fi = "<select multiple  class='form-control'><option></option>";
+                        $('#dvalue input[name=domainvalues]').each(function () {
+                            if ($(this).is(':checked')) {
+                                var op = "<option>" + $(this).val() + "</option>";
+                                fi += op;
+                            }
+                        });
+                        fi += "</select>";
+                        div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                        break;
+                    case '9':
+                        var fi = "<input type='checkbox' class='form-control' value='true' >";
+                        div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                        break;
+                    case '10':
+                        var fi = "<input type='password' class='form-control' >";
+                        div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                        break;
+                }
+
+
+                if (type == 1) {
+                    div += "<div class='form-group mx-sm-3 mb-2'><span style='color:red;'>*</span></div>";
+                }
+                div += "</div>"
+                $('#formcontent').append(div);
+                resetmodal();
+                shamsi();
+            });
+
+        }
+        function confirmedit(id) {
+            var field = $('#field :selected').val();
+            var type = $('#type :selected').val();
+            var formid = $('#formid').val();
+            var onvan = $('#title').val();
+            var isnull = true;
+            if (type == 1) {
+                isnull = false;
+            }
+            var subfields = [];
+            $('#dvalue input[name=domainvalues]').each(function () {
+                if ($(this).is(':checked')) {
+                    subfields.push($(this).val());
+                }
+            });
+
+            $.ajax({
+                url: "/panel/Forms/EditField/",
+                type: "POST",
+                data: { id: id, formid: formid, isnull: isnull, title: onvan, type: field, subfields: subfields }
+            }).done(function (result) {
+                var div = $('#formcontent input[value="' + result + '"]').parent();
+                $(div).children().remove();
+                $(div).append("<input hidden value='" + result + "' >");
+                $(div).append("<button type='button' class='btn btn-danger mb-2' onclick='deletefield(event," + result + ")'>حذف</button>");
+                $(div).append("<a class='btn btn-warning mb-2' style='margin:0 5px 0 5px' data-toggle='modal' data-target='#formfield' data-method='confirmedit(" + result + ")' data-id='" + result + "'>تغییر</a>");
+                $(div).append("<div ><span style='border-left:2px solid black;padding-left: 40px;'></span></div>");
+                if (field == '8') {
+                    var fi = "<input type='submit' onclick='submitform(event)' class='form-control btn btn-outline-info' value='" + $('#title').val() + "'>";
+                    $(div).append("<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>");
+                } else {
+                    if (field == '5') {
+                        var title = "<label style='font-weight:bold;' >" + $('#title').val() + "</label>";
+                    }
+                    else {
+                        var title = "<label>" + $('#title').val() + "</label>";
+                    }
+                    $(div).append("<div class='form-group mx-sm-3 mb-2'>" + title + "</div>");
+                }
+
+                switch (field) {
+                    case '0':
+                        var fi = "<input type='text' class='form-control'>";
+                        $(div).append("<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>");
+                        break;
+                    case '1':
+                        var fi = "<input type='number' class='form-control'>";
+                        $(div).append("<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>");
+                        break;
+                    case '4':
+                        var fi = "<textarea class='form-control'></textarea>";
+                        $(div).append("<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>");
+                        break;
+                    case '3':
+                        var fi = "<input type='date' class='form-control'>";
+                        $(div).append("<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>");
+                        break;
+                    case '2':
+                        var fi = "<input type='text' class='form-control' id='persiandate'>";
+                        $(div).append("<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>");
+                        break;
+                    case '6':
+                        var fi = "<select class='form-control'><option></option>";
+                        $('#dvalue input[name=domainvalues]').each(function () {
+                            if ($(this).is(':checked')) {
+                                var op = "<option>" + $(this).val() + "</option>";
+                                fi += op;
+                            }
+                        });
+                        fi += "</select>";
+                        $(div).append("<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>");
+                        break;
+                    case '7':
+                        var fi = "<select multiple  class='form-control'><option></option>";
+                        $('#dvalue input[name=domainvalues]').each(function () {
+                            if ($(this).is(':checked')) {
+                                var op = "<option>" + $(this).val() + "</option>";
+                                fi += op;
+                            }
+                        });
+                        fi += "</select>";
+                        $(div).append("<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>");
+                        break;
+                    case '9':
+                        var fi = "<input type='checkbox' class='form-control' value='true'>";
+                        $(div).append("<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>");
+                        break;
+                    case '10':
+                        var fi = "<input type='password' class='form-control' >";
+                        $(div).append("<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>");
+                        break;
+                }
+
+
+                if (type == 1) {
+                    $(div).append("<div class='form-group mx-sm-3 mb-2'><span style='color:red;'>*</span></div>");
+                }
+                //div += "</div>"
+                //$('#formcontent').append(div);
+                resetmodal();
+                shamsi();
+            });
+
+        }
+        function deletefield(e, id) {
+            $.ajax({
+                url: "/panel/Forms/DeleteField/?id=" + id,
+                type: "GET",
+                data: {}
+            }).done(function (result) {
+                $(e.target).parent().remove();
+            });
+
+        }
+        function resetmodal() {
+            $('#title').val('');
+            $('#type :selected').val('0');
+            $('#field :selected').val('0');
+            $('#formfield').modal('toggle');
+
+        }
+        function shamsi() {
+            $('#persiandate').MdPersianDateTimePicker({
+                targetTextSelector: '#persiandate',
+                fromDate: true,
+                enableTimePicker: true,
+                groupId: 'rangeSelector1',
+                dateFormat: 'yyyy-MM-dd HH:mm:ss',
+                textFormat: 'yyyy-MM-dd HH:mm:ss',
+            });
+        }
+        function domainchange(e) {
+            //$("#domain").change();
+            var id = $(e.target).find(":selected").val();
+            $.ajax({
+                type: "GET",
+                url: "/Panel/Forms/domainvalues",
+                data: { id: id }
+            }).done(function (result) {
+                $('#dvalue').children().remove();
+
+                for (var i = 0; i < result.length; i++) {
+                    var op = "<label style='border-left:2px solid black;margin-left:2px;' ><input type='checkbox' name='domainvalues' value='" + result[i].value + "' />" + result[i].value + "</label>";
+                    $('#dvalue').append(op);
+                }
+            });
+        }
+        function fieldchange(e) {
+            var id = $(e.target).find(":selected").val();
+            if (id == 6 || id == 7) {
+                var div = $(e.target).parent();
+                $(div).next().removeAttr('hidden');
+            } else {
+                $(div).next().attr('hidden', true);
+                $(e.target).parent().next().attr('hidden', true);
+                $(e.target).parent().next().next().attr('hidden', true);
+            }
+        }
+        function fieldchoose(e) {
+            var id = $(e.target).find(":selected").val();
+            $('#dvalue').children().remove();
+            if (id == -1) {
+                $(e.target).parent().next().attr('hidden', true);
+                $(e.target).parent().next().next().attr('hidden', true);
+            }
+            if (id == 0) {
+                $(e.target).parent().next().attr('hidden', true);
+                $(e.target).parent().next().next().removeAttr('hidden');
+            } else {
+                $(e.target).parent().next().next().attr('hidden', true);
+                $(e.target).parent().next().removeAttr('hidden');
+            }
+        }
+        function dastivalue(e) {
+            var id = $(e.target).prev().val();
+            if (id.length > 0) {
+                var op = "<label style='border-left:2px solid black;margin-left:2px;' ><input type='checkbox' checked name='domainvalues' value='" + id + "' />" + id + "</label>";
+                $('#dvalue').append(op);
+            }
+
+        }
+
+
+        function confirmsubform() {
+            var id = $('#anotherform').val();
+            var type = $('#type').val();
+            var title = $('#title').val();
+            var formid = $('#formid').val();
+            var a = [];
+            $('#formcontent').children('div').each(function () {
+                var tempid = $(this).attr('id');
+                if ($.inArray(tempid, a) == '-1') {
+                    a.push(tempid);
+                }
+            });
+            $.ajax({
+                url: "/panel/Forms/AddSubForm/",
+                type: "POST",
+                data: { form1id: formid, form2id: id, type: type, title: title, radif: a.length }
+            }).done(function (result) {
+                var subformid = result.id;
+                $.ajax({
+                    url: "/panel/Forms/DetailsSubform/",
+                    type: "GET",
+                    data: { id: subformid }
+                }).done(function (result) {
+                    if (type == 0) {
+                        for (var i = 0; i < result.length; i++) {
+                            var div = "<div class='form-inline' id='subform-" + subformid + "'>";
+                            if (i == 0) {
+                                div += "<button type='button' class='btn btn-danger mb-2' onclick='deletesubform(event," + subformid + ")'>حذف</button>";
+                                div += "<div class='mb-2' style='padding:.375rem 1.7rem;'>&nbsp</div>";
+                            }
+                            else {
+                                div += "<div class='mb-2' style='padding:.375rem 3.3rem;'>&nbsp</div>";
+                            }
+                            div += "<div ><span style='border-left:2px solid black;padding-left: 40px;'></span></div>"
+                            if (result[i].type == 'button') {
+                                var fi = "<input type='submit' onclick='submitform(event)' class='form-control btn btn-outline-info' value='" + result[i].title + "'>";
+                                div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                            } else {
+                                if (result[i].type == 'label') {
+                                    var title = "<label style='font-weight:bold;' >" + result[i].title + "</label>";
+                                }
+                                else {
+                                    var title = "<label>" + result[i].title + "</label>";
+                                }
+                                div += "<div class='form-group mx-sm-3 mb-2'>" + title + "</div>";
+                            }
+
+                            switch (result[i].type) {
+                                case 'input':
+                                    var fi = "<input type='text' class='form-control'>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'number':
+                                    var fi = "<input type='number' class='form-control'>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'textarea':
+                                    var fi = "<textarea class='form-control'></textarea>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'datemiladi':
+                                    var fi = "<input type='date' class='form-control'>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'dateshamsi':
+                                    var fi = "<input type='text' class='form-control' id='persiandate'>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'dropdown':
+                                    var fi = "<select class='form-control'><option></option>";
+                                    for (var j = 0; j < result[i].SubFields.length; j++) {
+                                        var op = "<option>" + result[i].SubFields[j].value + "</option>";
+                                        fi += op;
+                                    }
+                                    fi += "</select>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'multidropdown':
+                                    var fi = "<select multiple  class='form-control'><option></option>";
+                                    for (var j = 0; j < result[i].SubFields.length; j++) {
+                                        var op = "<option>" + result[i].SubFields[j].value + "</option>";
+                                        fi += op;
+                                    }
+                                    fi += "</select>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'checkbox':
+                                    var fi = "<input type='checkbox' class='form-control' value='true'>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'password':
+                                    var fi = "<input type='password' class='form-control' >";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                            }
+
+
+                            if (result[i].isnull == false) {
+                                div += "<div class='form-group mx-sm-3 mb-2'><span style='color:red;'>*</span></div>";
+                            }
+                            div += "</div>"
+                            $('#formcontent').append(div);
+                        }
+                        resetmodal();
+                        shamsi();
+                    }
+                    else {
+                        for (var i = 0; i < result.length; i++) {
+                            var div = "<div class='form-inline' id='subform-" + subformid + "'>";
+                            if (i == 0) {
+                                div += "<button class='btn btn-danger mb-2' type='button' onclick='deletesubform(event," + subformid + ")'>حذف</button>";
+                                div += "<button class='btn btn-success mb-2' type='button' onclick='addsubformtypeone(event," + result.length + ")'>افزودن</button>";
+                            }
+                            else {
+                                div += "<div class='mb-2' style='padding:.375rem 3.3rem;'>&nbsp</div>";
+                            }
+                            div += "<div ><span style='border-left:2px solid black;padding-left: 40px;'></span></div>"
+                            if (result[i].type == 'button') {
+                                var fi = "<input type='submit' onclick='submitform(event)' class='form-control btn btn-outline-info' value='" + result[i].title + "'>";
+                                div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                            } else {
+                                if (result[i].type == 'label') {
+                                    var title = "<label style='font-weight:bold;' >" + result[i].title + "</label>";
+                                }
+                                else {
+                                    var title = "<label>" + result[i].title + "</label>";
+                                }
+                                div += "<div class='form-group mx-sm-3 mb-2'>" + title + "</div>";
+                            }
+
+                            switch (result[i].type) {
+                                case 'input':
+                                    var fi = "<input type='text' class='form-control'>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'number':
+                                    var fi = "<input type='number' class='form-control'>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'textarea':
+                                    var fi = "<textarea class='form-control'></textarea>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'datemiladi':
+                                    var fi = "<input type='date' class='form-control'>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'dateshamsi':
+                                    var fi = "<input type='text' class='form-control' id='persiandate'>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'dropdown':
+                                    var fi = "<select class='form-control'><option></option>";
+                                    for (var j = 0; j < result[i].SubFields.length; j++) {
+                                        var op = "<option>" + result[i].SubFields[j].value + "</option>";
+                                        fi += op;
+                                    }
+                                    fi += "</select>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'multidropdown':
+                                    var fi = "<select multiple  class='form-control'><option></option>";
+                                    for (var j = 0; j < result[i].SubFields.length; j++) {
+                                        var op = "<option>" + result[i].SubFields[j].value + "</option>";
+                                        fi += op;
+                                    }
+                                    fi += "</select>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'checkbox':
+                                    var fi = "<input type='checkbox' class='form-control' value='true'>";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                                case 'password':
+                                    var fi = "<input type='password' class='form-control' >";
+                                    div += "<div class='form-group mx-sm-3 mb-2'>" + fi + "</div>";
+                                    break;
+                            }
+
+
+                            if (result[i].isnull == false) {
+                                div += "<div class='form-group mx-sm-3 mb-2'><span style='color:red;'>*</span></div>";
+                            }
+                            div += "</div>"
+                            $('#formcontent').append(div);
+                        }
+                        $('#formcontent').append("<hr/ id='subform-" + subformid + "'>");
+                        resetmodal();
+                        shamsi();
+                    }
+
+                });
+            });
+        }
+        function deletesubform(e, id) {
+            $.ajax({
+                url: "/panel/Forms/DeleteSubForm/?id=" + id,
+                type: "GET",
+                data: {}
+            }).done(function (result) {
+                //$("#subform-" + id).remove();
+                var contentToRemove = document.querySelectorAll(("#subform-" + id));
+                $(contentToRemove).remove();
+                //$("div[id=" + i + "]").remove();
+            });
+
+        }
+        function addsubformtypeone(e, count) {
+            var div = $(e.target).parent().clone();
+            var t = $(e.target).parent();
+            $(div).children().eq(0).remove();
+            $(div).children().eq(0).remove();
+            $(div).prepend("<div class='mb-2' style='padding:.375rem 3.3rem;'>&nbsp</div>");
+            //$('#formcontent').append(div);
+            var c = count - 1;
+            $(t).nextAll().eq('' + c).after(div);
+            c++;
+            for (var i = 0; i < count; i++) {
+
+                var temp = $(t).nextAll().eq('' + i).clone();
+                $(t).nextAll().eq('' + c).after(temp);
+                c++;
+            }
+        }
+
+        function createtable() {
+            var id = $('#formid').val();
+            $.ajax({
+                url: "/panel/Forms/SqlCommand/",
+                type: "GET",
+                data: { id: id, method: "Create" }
+            }).done(function (result) {
+                $('#message').html(result.message);
+                $('#message').removeAttr('hidden');
+                setTimeout(function () {
+                    $("#message").attr('hidden', true);
+                    $('#message').html("");
+                }, 4000);
+            });
+        }
+        function droptable() {
+            var id = $('#formid').val();
+            $.ajax({
+                url: "/panel/Forms/SqlCommand/",
+                type: "GET",
+                data: { id: id, method: "Drop" }
+            }).done(function (result) {
+                $('#message').html(result.message);
+                $('#message').removeAttr('hidden');
+                setTimeout(function () {
+                    $("#message").attr('hidden', true);
+                    $('#message').html("");
+                }, 4000);
+            });
+        }
+
+        function submitform(e) {
+            e.preventDefault();
+            var isnull = false;
+            $('#formcontent').find('span').each(function () {
+                if ($(this).html() == "*") {
+                    var g = $(this).parent().parent();
+                   var  t = $(g).before();
+                    if ($(t).find('input').length > 0) {
+                        if ($(t).find('input').val() == "" || $(t).find('input').val() == null) {
+                            isnull = true;
+                        }
+                    }
+                    if ($(t).find('select').length > 0) {
+                        if ($(t).find('select').find(':selected').text() == "" || $(t).find('select').find(':selected').text() == null) {
+                            isnull = true;
+                        }
+                    }
+                }
+
+            });
+            if (isnull) {
+                alert("لطفا تمام فیلد های اجباری را کامل کنید.")
+            }
+            else {
+                var formid = $('#formid').val();
+                var subforms = []
+                var fk = [];
+                $("div[id^=subform-]").each(function () {
+                    var temp = $(this).attr('id');
+                    if ($.inArray(temp, subforms) == '-1') {
+                        subforms.push(temp);
+                    }
+                })
+                $.each(subforms, function (i, item) {
+                    var par = [];
+                    var content = document.querySelectorAll(("#" + item));
+                    $.each(content, function () {
+                        var div = $(this).last();
+                        if ($(div).find('span').length > 0) {
+                            div = $(div).before();
+                        }
+                        if ($(div).find('input').length > 0) {
+                            par.push($(div).find('input').val());
+                            $(div).find('input').val("");
+                        } else if ($(div).find('select').length > 0) {
+                            par.push($(div).find('select').find(":selected").text());
+                            $(div).find('select').find(":selected").removeAttr('selected');
+                            $(div).find('select:nth-child(0)').attr('selected', 'selected');
+                        }
+                    });
+                    $.ajax({
+                        url: "/panel/Forms/SqlCommandInsertFK/",
+                        type: "POST",
+                        data: { formid: formid, id: item, parameters: par }
+                    }).done(function (result) {
+                        for (var i = 0; i < result.message.length; i++) {
+                            fk.push(item + "-" + result.message[i]);
+                        }
+                    });
+                });
+                setTimeout(function () {
+                    mainform(fk);
+                }, 2000);
+            }
+        }
+        function mainform(fk) {
+            var formid = $('#formid').val();
+            var field = [];
+            var content2 = [];
+            $("#formcontent div[id^=field-]").each(function () {
+                var temp = $(this).attr('id');
+                if ($.inArray(temp, content2) == '-1') {
+                    content2.push(temp);
+                }
+            })
+            $.each(content2, function (i, item) {
+                var content3 = document.querySelectorAll(("#" + item));
+                $.each(content3, function () {
+                    var div2 = $(this).children().last();
+                    if ($(div2).find('span').length > 0) {
+                        div2 = $(div2).parent().children().eq($(this).children().length - 2);
+                    }
+                    if ($(div2).find('input[type="submit"]').length == 0) {
+                        if ($(div2).find('input').length > 0) {
+                            field.push($(div2).find('input').val());
+                            $(div2).find('input').val("");
+                        } else if ($(div2).find('select').length > 0) {
+                            field.push($(div2).find('select').find(":selected").text());
+                            $(div2).find('select').find(":selected").removeAttr('selected');
+                            $(div2).find('select:nth-child(0)').attr('selected', 'selected');
+                        }
+                    }
+                });
+
+
+            })
+            $.ajax({
+                url: "/panel/Forms/SqlCommandInsert/",
+                type: "POST",
+                data: { formid: formid, parameters: field, fk: fk }
+            }).done(function (result) {
+               alert(result.message);
+            });
+        }
+    </script>
+}

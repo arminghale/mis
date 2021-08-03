@@ -1,0 +1,97 @@
+﻿@model IEnumerable<MIS.ActionGroup>
+
+@{
+    ViewData["Title"] = "Action Groups";
+}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+
+        <button type="button" id="sidebarCollapse" class="navbar-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <button class="btn btn-dark btn-sm d-inline-block d-lg-none" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-arrow-down d-flex justify-content-center"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="d-flex justify-content-center">
+                لیست گروه های عملیاتی
+            </div>
+        </div>
+    </div>
+</nav>
+<div id="alldevices">
+    <form class="form-inline" asp-action="Index">
+        <div class="form-group mx-sm-3 mb-2">
+            <select id="group" type="text" class="form-control" asp-items="ViewBag.sid">
+                <option value="-1">همه</option>
+            </select>
+        </div>
+        <div class="form-group mx-sm-3 mb-2">
+            <input type="text" class="form-control" placeholder="جستجو" name="search">
+        </div>
+        <button type="submit" class="btn btn-primary mb-2">جستجو</button>
+        @if (User.Claims.Any(w => w.Type == ViewBag.policy + "/create"))
+        {
+            <div class="form-group mx-sm-3 mb-2">
+                <a class="form-control btn btn-success" asp-action="Create">درج</a>
+            </div>
+        }
+
+    </form>
+
+    <br>
+    <!-- device's list -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">
+                    عنوان
+                </th>
+                <th scope="col">
+                    سامانه
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="tbod">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @item.title
+                    </td>
+                    <td>
+                        @item.Samane.title
+                    </td>
+                    <td>
+                        <div>
+                            @if (User.Claims.Any(w => w.Type == ViewBag.policy + "/edit"))
+                            {
+                                <a class="btn btn-warning" asp-action="Edit" asp-route-id="@item.id">تغییر</a>
+                            }
+                            @if (User.Claims.Any(w => w.Type == ViewBag.policy + "/delete"))
+                            {
+                                <a class="btn btn-danger" data-toggle="modal" data-target="#exampleModal" data-id="@item.id" data-method="ActionGroups">حذف</a>
+
+                            }
+
+                        </div>
+
+                    </td>
+                </tr>
+
+            }
+
+        </tbody>
+    </table>
+</div>
+@section Scripts{
+    <script>
+        $("#group").change(function () {
+            var id = $(this).find(":selected").val();
+            window.location.replace("/Panel/ActionGroups/Index/?sid=" + id);
+        });
+    </script>
+}

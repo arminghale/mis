@@ -1,0 +1,31 @@
+﻿<ul class="list-unstyled components">
+    <p style="text-align:center;">@ViewBag.name</p>
+    <li style="text-align:center;">
+        <select asp-items="@ViewBag.samane" id="samane" onchange="samane()">
+            <option value="-1">انتخاب سامانه</option>
+        </select>
+    </li>
+    @if (ViewBag.actiongroup != null)
+    {
+        @foreach (var item in ViewBag.actiongroup)
+        {
+            <li>
+                <a href="#_@item.id" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">@item.title</a>
+                <ul class="collapse list-unstyled" id="_@item.id">
+                    @foreach (var item2 in ViewBag.action)
+                    {
+                        if (item.id == item2.actiongroupid)
+                        {
+                            <li>
+                                <a href="javascript:;" id="a_@item2.id" onclick="action(event,'@item2.url')">@item2.title</a>
+                            </li>
+                        }
+                    }
+                </ul>
+            </li>
+        }
+    }
+    <li>
+        <a href="/Logout">خروج</a>
+    </li>
+</ul>
